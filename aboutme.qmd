@@ -1,7 +1,30 @@
 ---
-title: "About me"
+title: "My Quarto document"
+author: "Mojisola"
+date: "2024-06-06"
+format: html
+theme: superhero
 ---
 
-Add some text and a figure describing myself.
 
-For details, see the exercise instructions. 
+
+## Mojisola Popoola
+
+#I am a physician, working with the University of Texas, San Antonio, I am interested in clinical informatics, my programming language would be R programming, power BI, Excel, Tableau. I am a beginner in data analysis. I would like to be more profienct in R programming and python. I am a bird trainer. I have a talking African Grey Parrot
+
+
+![Example Image]
+(https://github.com/amfavor/mojisolapopola-P2-portfolio/raw/main/images/mypics.jpg)
+
+https://www.youtube.com/watch?v=_g5roKHj95o
+
+
+microsoft excel is easy to learn and work with
+
+
+https://github.com/amfavor/mojisolapopola-P2-portfolio
+
+
+
+
+
