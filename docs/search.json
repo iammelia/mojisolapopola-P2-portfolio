@@ -77,6 +77,13 @@
     "text": "#I am a physician, working with the University of Texas, San Antonio, I am interested in clinical informatics, my programming language would be R programming, power BI, Excel, Tableau. I am a beginner in data analysis. I would like to be more profienct in R programming and python. I am a bird trainer. I have a talking African Grey Parrot\n![Example Image] (https://github.com/amfavor/mojisolapopola-P2-portfolio/raw/main/images/mypics.jpg)\nhttps://www.youtube.com/watch?v=_g5roKHj95o\nmicrosoft excel is easy to learn and work with\nhttps://github.com/amfavor/mojisolapopola-P2-portfolio"
   },
   {
+    "objectID": "aboutme.html#mojisola-popoola",
+    "href": "aboutme.html#mojisola-popoola",
+    "title": "My Quarto document",
+    "section": "",
+    "text": "#I am a physician, working with the University of Texas, San Antonio, I am interested in clinical informatics, my programming language would be R programming, power BI, Excel, Tableau. I am a beginner in data analysis. I would like to be more profienct in R programming and python. I am a bird trainer. I have a talking African Grey Parrot\n![Example Image] (https://github.com/amfavor/mojisolapopola-P2-portfolio/raw/main/images/mypics.jpg)\nhttps://www.youtube.com/watch?v=_g5roKHj95o\nmicrosoft excel is easy to learn and work with\nhttps://github.com/amfavor/mojisolapopola-P2-portfolio"
+  },
+  {
     "objectID": "presentation-exercise/presentation-exercise.html",
     "href": "presentation-exercise/presentation-exercise.html",
     "title": "Presentation Exercise",
@@ -208,12 +215,5 @@
     "title": "YOURNAME Data Analysis Portfolio",
     "section": "",
     "text": "This folder contains a simple made-up data-set in an Excel file.\nIt contains the variables Height, Weight and Gender of a few imaginary individuals.\nThe dataset purposefully contains some faulty entries that need to be cleaned.\nGenerally, any dataset should contain some meta-data explaining what each variable in the dataset is. (This is often called a Codebook.) For this simple example, the codebook is given as a second sheet in the Excel file.\nThis raw data-set should generally not be edited by hand. It should instead be loaded and processed/cleaned using code."
-  },
-  {
-    "objectID": "aboutme.html#mojisola-popoola",
-    "href": "aboutme.html#mojisola-popoola",
-    "title": "My Quarto document",
-    "section": "",
-    "text": "#I am a physician, working with the University of Texas, San Antonio, I am interested in clinical informatics, my programming language would be R programming, power BI, Excel, Tableau. I am a beginner in data analysis. I would like to be more profienct in R programming and python. I am a bird trainer. I have a talking African Grey Parrot\n![Example Image] (https://github.com/amfavor/mojisolapopola-P2-portfolio/raw/main/images/mypics.jpg)\nhttps://www.youtube.com/watch?v=_g5roKHj95o\nmicrosoft excel is easy to learn and work with\nhttps://github.com/amfavor/mojisolapopola-P2-portfolio"
   }
 ]
