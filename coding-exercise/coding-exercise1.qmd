@@ -4,10 +4,6 @@ title: "R Coding Exercise"
 
 Placeholder file for the future R coding exercise.
 
-```{r}
-
-
-```
 
 ```{r, message=FALSE, warning=FALSE}
 library("dplyr")
@@ -246,3 +242,33 @@ summary(fit2)
 ```
 
 The R-squared is 0.01044 which means that 1% of population can be explained by life expentancy
+
+#Part 2
+Amelia Tristan contributed to this exercise. Amelia used the mice_weight data set from dslabs.
+
+```{r}
+#open help page for mice_weights data and explore the data structure, class, and contents
+help(mice_weights) #help page
+str(mice_weights) #structure
+summary(mice_weights) #contents
+class(mice_weights) #class
+
+mice_weights
+
+#filtering out any null values. data is already mostly clean with just 8 null entries in the entire data set (4 each in two variables)
+mw_clean <- mice_weights %>%  dplyr::filter(!(is.na(bone_density)), !(is.na(percent_fat)))
+
+
+#checking distribution (boxplot) of percent_fat as a predictor of body_weight by sex.
+mw_clean %>% ggplot(aes(percent_fat, body_weight)) + geom_boxplot() + facet_wrap(~sex)
+
+#checking distribution of diet as a predictor of body_weight by sex
+mw_clean %>% ggplot(aes(diet, body_weight)) + geom_boxplot() + facet_wrap(~sex)
+
+#scatter of percent_fat as a predictor of body_weight by sex.
+mw_clean %>% ggplot(aes(percent_fat, body_weight)) + geom_point() + facet_wrap(~sex)
+
+#scatter of bone_density as a predictor of body_weight by sex.
+mw_clean %>% ggplot(aes(bone_density, body_weight)) + geom_point() + facet_wrap(~sex)
+```
+
