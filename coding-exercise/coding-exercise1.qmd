@@ -272,3 +272,16 @@ mw_clean %>% ggplot(aes(percent_fat, body_weight)) + geom_point() + facet_wrap(~
 mw_clean %>% ggplot(aes(bone_density, body_weight)) + geom_point() + facet_wrap(~sex)
 ```
 
+I will be focusing on body weight as the dependent variable. The first boxplot explores the distribution of body weight by percent fat by each sex. Females have more outliers than males and lower average body weight. The second boxplot explores the distribution of body weight by diet dy sex. Again females have more outliers and lower average body weight than males. However, the HF diet produces higher body weights in both sexes than chow diet. The next scatter plot shows a positive relationship between percent fat and body weight. The last plot shows a loosely clustered positive relationship between bone density and body weight.I will continue fitting two models of body weight with percent fat and bone density as the predictor.
+
+```{r}
+#fitting two linear models for bodyweight by percent fat and bone density
+mw_pf_bw_fit = lm(body_weight~percent_fat, data = mw_clean)
+mw_bd_bw_fit = lm(body_weight~bone_density, data = mw_clean)
+
+#summary of each model
+summary(mw_pf_bw_fit)
+summary(mw_bd_bw_fit)
+```
+The two models' predictors both have low significance for body weight. However, based on the r-squared values, the model with percent fat is a much better fit (0.43) than the bone density model (0.13).
+
