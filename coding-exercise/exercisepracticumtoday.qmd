@@ -1,0 +1,250 @@
+---
+title: "R Coding Exercise"
+---
+
+Placeholder file for the future R coding exercise.
+
+```{r}
+
+
+```
+
+```{r}
+library("dplyr")
+library("tidyverse")
+library("ggplot2")
+library("dslabs")
+library("renv")
+```
+
+```{r}
+#look at help file for gapminder data
+help(gapminder)
+#get an overview of data structure
+str(gapminder)
+```
+
+```{r}
+#get a summary of data
+summary(gapminder)
+```
+
+```{r}
+#determine the type of object gapminder is
+class(gapminder)
+```
+
+```{r}
+africadata = filter(gapminder, continent == 'Africa')
+head(africadata)
+```
+
+To get overview of africadata
+
+```{r}
+str(africadata)
+```
+
+Summary of africadata
+
+```{r}
+summary(africadata)
+```
+
+Infant survival rate
+
+```{r}
+infant_survival_rate = africadata %>%
+  select(infant_mortality, life_expectancy)
+head(infant_survival_rate)
+```
+
+Structure of infant survival
+
+```{r}
+str(infant_survival_rate)
+```
+
+summary of infant survival
+
+```{r}
+summary(infant_survival_rate)
+```
+
+Infant mortality
+
+```{r}
+african_mortality = africadata %>%
+  select(population, life_expectancy)
+head(african_mortality)
+```
+
+African mortality structure
+
+```{r}
+str(african_mortality)
+```
+
+African mortality summary
+
+```{r}
+summary(african_mortality)
+```
+
+```{r}
+regression = lm(infant_survival_rate$life_expectancy ~ infant_survival_rate$infant_mortality)
+rsq <- function(x, y) summary(lm(infant_survival_rate$life_expectancy ~ infant_survival_rate$infant_mortality))$r.squared
+r_square = round(rsq(obs, mod), 3)
+
+coeff = round(summary(regression)$coefficients[2],3)
+y_int = round(summary(regression)$coefficients[1],3)
+plot(
+  infant_survival_rate$infant_mortality,
+  infant_survival_rate$life_expectancy,
+  main='African Life Expectancy \n Infant Mortality Effect',
+  xlab='Infant Mortality',
+  ylab='Life Expectancy',
+   col='red', 
+   bg='blue', 
+   pch = 21,
+)
+```
+
+```{r}
+
+```
+
+Life expectancy as a function of population
+
+```{r}
+regression = lm(african_mortality$life_expectancy ~ african_mortality$population)
+rsq <- function(x, y) summary(lm(african_mortality$life_expectancy ~ african_mortality$population))$r.squared
+r_square = round(rsq(obs, mod), 3)
+
+coeff = round(summary(regression)$coefficients[2],9)
+y_int = round(summary(regression)$coefficients[1],3)
+plot(
+  african_mortality$population,
+  african_mortality$life_expectancy,
+  main='African Life Expectancy \n Population Effect',
+  xlab='Population',
+  ylab='Life Expectancy',
+  col='pink', 
+  bg='purple', 
+  pch = 21,
+)
+```
+
+Missing years for infant mortality
+
+```{r}
+miss_inf_mort_rows = africadata %>%
+  filter(is.na(infant_mortality))
+head(miss_inf_mort_rows)
+```
+
+Perform year group by to identify missing year
+
+```{r}
+miss_inf_mort_yrs = miss_inf_mort_rows %>%
+  group_by(year) %>%
+  count(infant_mortality)
+miss_inf_mort_yrs
+```
+
+Extract only year 2000 from data
+
+```{r}
+africadata2000 = filter(africadata, year == 2000)
+africadata2000
+```
+
+Structure of year 2000 data
+
+```{r}
+str(africadata2000)
+```
+
+Summary of yer 2000 data
+
+```{r}
+summary(africadata2000)
+```
+
+To create a filter from dataset
+
+```{r}
+african_mortality2000 = africadata2000 %>%
+  select(population, life_expectancy)
+head(african_mortality2000)
+```
+
+To create another dataset
+
+```{r}
+infant_survival_rate2000 = africadata2000 %>%
+  select(infant_mortality, life_expectancy)
+head(african_mortality2000)
+```
+
+infant mortality effect
+
+```{r}
+regression = lm(infant_survival_rate2000$life_expectancy ~ infant_survival_rate2000$infant_mortality)
+rsq <- function(x, y) summary(lm(infant_survival_rate2000$life_expectancy ~ infant_survival_rate2000$infant_mortality))$r.squared
+r_square = round(rsq(obs, mod), 3)
+# summary(regression)$coefficients - keep to sanity check
+coeff = round(summary(regression)$coefficients[2],3)
+y_int = round(summary(regression)$coefficients[1],3)
+plot(
+  infant_survival_rate2000$infant_mortality,
+  infant_survival_rate2000$life_expectancy,
+  main='African Life Expectancy \n Infant Mortality Effect',
+  xlab='Infant Mortality',
+  ylab='Life Expectancy',
+   col='green', 
+   bg='violet', 
+   pch = 21,
+)
+```
+
+Population effect
+
+```{r}
+regression = lm(african_mortality2000$life_expectancy ~ african_mortality2000$population)
+rsq <- function(x, y) summary(lm(african_mortality2000$life_expectancy ~ african_mortality2000$population))$r.squared
+r_square = round(rsq(obs, mod), 3)
+# summary(regression)$coefficients - keep to sanity check
+coeff = round(summary(regression)$coefficients[2],9)
+y_int = round(summary(regression)$coefficients[1],3)
+plot(
+  african_mortality2000$population,
+  african_mortality2000$life_expectancy,
+  main='African Life Expectancy \n Population Effect',
+  xlab='Population',
+  ylab='Life Expectancy',
+  col='violet', 
+  bg='red', 
+  pch = 21,
+)
+```
+
+Simple model fit
+
+Life expectancy to infant mortality
+
+```{r}
+fit1 = lm(life_expectancy ~ log(infant_mortality), data=infant_survival_rate2000)
+summary(fit1)
+```
+
+The R-squared is 0.54, this means that 54% of life expectancy can be explained by infant mortality
+
+Fit life expectancy to population
+
+```{r}
+fit2 = lm(life_expectancy ~ log(population), data=african_mortality2000)
+summary(fit2)
+```
+
+The R-squared us 0.01 which means that 1% of population can be explained by life expentancy
