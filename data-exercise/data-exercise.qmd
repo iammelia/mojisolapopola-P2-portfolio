@@ -1,0 +1,89 @@
+---
+title: "Tidy Tuesday Exercise"
+---
+
+Placeholder file for the future Tidy Tuesday exercise.
+
+###Load necessary libraries
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+###Set seed for reproducibility
+```{r}
+set.seed(123)
+```
+###Generate synthetic data
+```{r}
+n <- 1000
+```
+
+```{r}
+age <- round(runif(n, 22, 65), 0)
+education_levels <- c("High School", "Bachelor's", "Master's", "PhD")
+education <- sample(education_levels, n, replace = TRUE, prob = c(0.3, 0.4, 0.2, 0.1))
+```
+
+###Assign numeric values to education levels for income calculation
+```{r}
+education_num <- as.numeric(factor(education, levels = education_levels))
+
+# Assign numeric values to education levels for income calculation
+education_num <- as.numeric(factor(education, levels = education_levels))
+
+income <- round(30000 + age * 1000 + education_num * 10000 + rnorm(n, mean = 0, sd = 5000), 0)
+hours_worked <- round(40 - age * 0.1 + rnorm(n, mean = 0, sd = 5), 1)
+job_satisfaction <- round(5 + income * 0.0001 - hours_worked * 0.05 + rnorm(n, mean = 0, sd = 1), 1)
+```
+##Create a data frame
+```{r}
+data <- data.frame(age, education, income, hours_worked, job_satisfaction)
+```
+###Explore data by making plots and tables
+```{r}
+summary(data)
+```
+
+###Plot relationships
+```{r}
+ggplot(data, aes(x = age, y = income)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  labs(title = "Income vs Age")
+
+ggplot(data, aes(x = education, y = income)) + 
+  geom_boxplot() + 
+  labs(title = "Income by Education Level")
+
+ggplot(data, aes(x = age, y = hours_worked)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  labs(title = "Hours Worked vs Age")
+
+ggplot(data, aes(x = income, y = job_satisfaction)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  labs(title = "Job Satisfaction vs Income")
+
+ggplot(data, aes(x = hours_worked, y = job_satisfaction)) + 
+  geom_point() + 
+  geom_smooth(method = "lm") + 
+  labs(title = "Job Satisfaction vs Hours Worked")
+```
+###Fit simple models to the data
+```{r}
+model_income <- lm(income ~ age + education, data = data)
+summary(model_income)
+
+model_hours <- lm(hours_worked ~ age, data = data)
+summary(model_hours)
+
+model_satisfaction <- lm(job_satisfaction ~ income + hours_worked, data = data)
+summary(model_satisfaction)
+```
+###Explore different models
+```{r}
+model_satisfaction_glm <- glm(job_satisfaction ~ income + hours_worked, family = gaussian(link = "identity"), data = data)
+summary(model_satisfaction_glm)
+```
+
