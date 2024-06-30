@@ -1,0 +1,135 @@
+---
+title: "loading/cleaning/wrangling/exploring"
+author: "Leonel Salazar"
+format: docx
+---
+
+```{r}
+library(readxl)
+update.packages("tidyverse")
+library(tidyverse)
+update.packages("dplyr")
+library(dplyr)
+```
+
+```{r}
+# Output cleaned data file to a csv file.
+hcny_data <- read.csv("/Users/knowledgedivine/Desktop/honeyproject/hcny_CleanDraft.csv", header = FALSE, stringsAsFactors = FALSE)
+```
+
+```{r}
+head(hcny_data)
+```
+```{r}
+str(hcny_data)
+```
+```{r}
+summary(hcny_data)
+```
+
+
+```{r}
+# Merge the first two rows to create a proper header
+header <- hcny_data[1:4, ]
+header <- sapply(header, function(x) paste(na.omit(x), collapse = " "))
+colnames(hcny_data) <- header
+head(header)
+```
+
+```{r}
+# Remove the first two rows (header rows) and any completely blank rows
+hcnydata_cleaned <- hcny_data[-c(1,2), ]
+head(hcnydata_cleaned)
+```
+```{r}
+# Assuming hcny_data_cleaned is your cleaned data frame
+colnames(hcnydata_cleaned) <- c("state", "varroa_mites", "other_pests", "disease", "pesticides", "other", "unknown")
+```
+
+```{r}
+head(hcnydata_cleaned)
+```
+
+```{r}
+# Convert specified columns to numeric
+hcnydata_cleaned <- hcnydata_cleaned %>%
+  mutate(across(c("varroa_mites", "other_pests", "disease", "pesticides", "other", "unknown"), as.numeric))
+```
+
+
+```{r}
+# View the updated data frame
+hcnydata_cleaned<-hcnydata_cleaned[-1,]
+```
+
+```{r}
+head(hcnydata_cleaned)
+```
+```{r}
+# Verify the changes
+str(hcnydata_cleaned)
+```
+
+```{r}
+head(hcnydata_cleaned)
+```
+
+
+
+```{r}
+head(hcnydata_cleaned)
+```
+
+
+```{r}
+head(hcnydata_cleaned)
+```
+
+```{r}
+ggplot(hcnydata_cleaned, aes(varroa_mites)) + geom_histogram()
+```
+```{r}
+view((hcnydata_cleaned))
+```
+
+```{r}
+# Write the cleaned data to a new CSV file
+write.csv(hcnydata_cleaned, "/Users/knowledgedivine/Desktop/honeyproject/hcnydata_cleaned.csv", row.names = FALSE)
+```
+
+********************Conclusion- all code below is test code right now********************************
+
+
+
+
+
+```{r}
+# Assuming hcnydata_cleaned is your data frame
+hcnydata_cleaned <- hcnydata_cleaned[apply(hcnydata_cleaned, 1, function(x) !all(is.na(x))), ]
+
+# Print the modified data frame to verify the changes
+head(hcnydata_cleaned)
+view(hcnydata_cleaned)
+
+```
+
+
+
+
+
+```{r}
+str(hcnydata_cleaned)
+```
+
+
+```{r}
+update.packages('mgcv')
+library(mgcv)
+```
+```{r}
+hcnydata_cleaned<-data.frame(state=as.integer(hcnydata_cleaned$state))
+```
+```{r}
+hcnydata_cleaned$state <-(hcnydata_cleaned %>% mutate(hcnydata_cleaned$state = as.integer(hcnydata_cleaned$state))
+```
+
