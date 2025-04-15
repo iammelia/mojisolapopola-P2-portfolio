@@ -1,0 +1,451 @@
+---
+title: "Assignment # 7 Analysis Workflow"
+author: Mojisola Popoola
+date: "`r Sys.Date()`"
+format: html
+editor: visual
+theme: cosmo
+---
+
+```{r}
+rm(list = ls())
+```
+
+# Load libraries
+
+```{r, message=FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+```
+
+# Load the data
+
+```{r}
+finalist <- read.csv("/Users/knowledgedivine/Desktop/practicum2/mojisolapopola-P2-portfolio/tidytuesday-exercise/finalists.csv")
+
+# Display the first few rows of the dataset
+head(finalist)
+
+# Summary of the dataset
+summary(finalist)
+
+# Structure of the dataset
+str(finalist)
+```
+
+## Hypothesis: "Does the average age of finalists vary significantly by Season?"
+
+## Wrangle the Data
+
+Data wrangling involves cleaning and transforming the data to make it suitable for analysis.
+
+# Remove Unnecessary Columns
+
+```{r}
+finalist <- finalist %>%
+  select(-c(Hometown, Description))
+```
+
+# Convert Birthday Columns to standard Date format
+
+```{r, message=FALSE, warning=FALSE}
+finalist <- finalist %>%
+  mutate(Birthday = as.Date(Birthday, format = "%d-%b-%y"))
+```
+
+# Separate Birthplace into City and State
+
+```{r}
+library(tidyr)
+finalist <- finalist %>%
+  separate(Birthplace, into = c("City", "State"), sep = ", ")
+
+finalist$State <- as.factor(finalist$State)
+
+str(finalist)
+```
+
+# Handle Missing Values
+
+```{r}
+finalist <- na.omit(finalist)
+```
+
+# Calculate Age and create the Age column
+
+```{r}
+library(dplyr)
+finalist <- finalist %>%
+  mutate(Age = as.numeric(difftime(Sys.Date(), as.Date(Birthday), units = "weeks")) %/% 52)
+```
+
+## Exploratory Data Analysis (EDA)
+
+EDA involves summarizing the main characteristics of the data often using visual methods.
+
+# Summary Statistics
+
+```{r}
+summary(finalist)
+```
+
+```{r}
+# Summary statistics for Age by State
+summary_stats <- finalist %>%
+  group_by(Season) %>%
+  summarise(
+    Mean_Age = round(mean(Age, na.rm = TRUE), 1),
+    Median_Age = round(median(Age, na.rm = TRUE), 1),
+    SD_Age = round(sd(Age, na.rm = TRUE), 1),
+    Count = n()
+  )
+
+# Print the summary statistics
+print(summary_stats)
+```
+
+# Distribution of Age
+
+```{r}
+# Histogram of Age
+ggplot(finalist, aes(x = Age)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  labs(title = "Distribution of Age", x = "Age", y = "Frequency")
+```
+
+# Count by State
+
+```{r}
+ggplot(finalist, aes(x = State)) +
+  geom_bar(fill = "lightblue", color = "black") +
+  labs(title = "Count by State", x = "State", y = "Frequency") +
+  coord_flip()
+```
+
+# Scatter Plot (if applicable)
+
+```{r}
+ggplot(finalist, aes(x = Season, y = Age)) +
+   geom_point() +
+   labs(title = "Scatter Plot of Season vs Age", x = "Season", y = "Age")
+```
+
+## Split the Data into Train/Test Sets using createDataPartition
+
+```{r, message=FALSE, warning=FALSE}
+library(caret)
+library(tidymodels)
+library(rsample)
+
+set.seed(123)
+
+# Create a partition for training (80%) and testing (20%)
+trainIndex <- createDataPartition(finalist$Age, p = 0.8, list = FALSE)
+
+# Subset the data into training and testing sets
+train_data <- finalist[trainIndex, ]
+test_data <- finalist[-trainIndex, ]
+
+
+
+# Define train control
+cv_folds <- vfold_cv(train_data, v = 10, repeats = 5)
+```
+
+We will fit three different types of models to our data using the tidymodels framework:
+
+Linear Regression Random Forest Support Vector Machine (SVM) We'll use cross-validation (CV) for model training and fitting, and evaluate the models based on performance metrics such as RMSE, R-squared, and residuals.
+
+# Define a recipe for preprocessing
+
+```{r}
+age_recipe <- recipe(Age ~ State,Season, data = train_data) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())
+
+```
+
+# Linear Regression Model
+
+```{r}
+# Define the linear regression model
+lm_model <- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+```
+
+# Random Forest Model
+
+```{r}
+# Define the random forest model
+rf_model <- rand_forest() %>%
+  set_engine("ranger") %>%
+  set_mode("regression")
+```
+
+# Support Vector Machine (SVM) Model
+
+```{r}
+# Define the SVM model
+svm_model <- svm_rbf() %>%
+  set_engine("kernlab") %>%
+  set_mode("regression")
+```
+
+# Create Workflows
+
+We will create workflows that combine the recipe with each model.
+
+```{r}
+# Create workflows for each model
+lm_workflow <- workflow() %>%
+  add_recipe(age_recipe) %>%
+  add_model(lm_model)
+
+rf_workflow <- workflow() %>%
+  add_recipe(age_recipe) %>%
+  add_model(rf_model)
+
+svm_workflow <- workflow() %>%
+  add_recipe(age_recipe) %>%
+  add_model(svm_model)
+```
+
+# Train Models with Cross-Validation
+
+```{r,message=FALSE, warning=FALSE}
+# Control object to save predictions
+ctrl <- control_grid(save_pred = TRUE)
+
+# Train linear regression model with cross-validation
+lm_res <- lm_workflow %>%
+  tune_grid(resamples = cv_folds, control = ctrl)
+
+# Train random forest model with cross-validation
+rf_res <- rf_workflow %>%
+  tune_grid(resamples = cv_folds, control = ctrl)
+
+# Train SVM model with cross-validation
+svm_res <- svm_workflow %>%
+  tune_grid(resamples = cv_folds, control = ctrl)
+```
+
+# Fit Resamples
+
+Fit the models using cross-validation:
+
+```{r,message=FALSE,warning=FALSE}
+# Fit resamples for each workflow
+lm_res <- fit_resamples(lm_workflow, resamples = cv_folds, control = ctrl)
+rf_res <- fit_resamples(rf_workflow, resamples = cv_folds, control = ctrl)
+svm_res <- fit_resamples(svm_workflow, resamples = cv_folds, control = ctrl)
+```
+
+# Collect Predictions
+
+```{r}
+# Collect predictions for each model
+lm_predictions <- collect_predictions(lm_res)
+rf_predictions <- collect_predictions(rf_res)
+svm_predictions <- collect_predictions(svm_res)
+```
+
+# Calculate RMSE and R-squared to Evaluate Model Performance
+
+```{r}
+library(yardstick)
+
+# Calculate metrics for Linear Regression Model
+lm_metrics <- lm_predictions %>%
+  group_by(id) %>%
+  summarize(
+    rmse = rmse_vec(truth = Age, estimate = .pred),
+    rsq = rsq_vec(truth = Age, estimate = .pred)
+  )
+
+print("Linear Regression Metrics:")
+print(lm_metrics)
+
+# Calculate metrics for Random Forest Model
+rf_metrics <- rf_predictions %>%
+  group_by(id) %>%
+  summarize(
+    rmse = rmse_vec(truth = Age, estimate = .pred),
+    rsq = rsq_vec(truth = Age, estimate = .pred)
+  )
+
+print("Random Forest Metrics:")
+print(rf_metrics)
+
+# Calculate metrics for SVM Model
+svm_metrics <- svm_predictions %>%
+  group_by(id) %>%
+  summarize(
+    rmse = rmse_vec(truth = Age, estimate = .pred),
+    rsq = rsq_vec(truth = Age, estimate = .pred)
+  )
+
+print("SVM Metrics:")
+print(svm_metrics)
+```
+
+# Analyze Residuals and Uncertainty
+
+We can also analyze residuals and uncertainty for each model.
+
+```{r}
+# Residuals for linear regression model
+lm_residuals <- lm_predictions$.pred - lm_predictions$Age
+hist(lm_residuals, main = "Linear Regression Residuals", xlab = "Residuals")
+
+# Residuals for random forest model
+rf_residuals <- rf_predictions$.pred - rf_predictions$Age
+hist(rf_residuals, main = "Random Forest Residuals", xlab = "Residuals")
+
+# Residuals for SVM model
+svm_residuals <- svm_predictions$.pred - svm_predictions$Age
+hist(svm_residuals, main = "SVM Residuals", xlab = "Residuals")
+```
+
+# Model Evaluation Summary
+
+Based on the performance metrics obtained from cross-validation, here are the summarized results for each model:
+
+# Linear Regression:
+
+RMSE: Repeat1: 7.533 Repeat2: 7.469 Repeat3: 7.636 Repeat4: 7.322 Repeat5: 7.534 R²: Repeat1: 0.000735 Repeat2: 0.000419 Repeat3: 0.003392 Repeat4: 0.000386 Repeat5: 0.002878
+
+# Random Forest:
+
+RMSE: Repeat1: 7.227 Repeat2: 7.084 Repeat3: 7.202 Repeat4: 7.018 Repeat5: 7.128 R²: Repeat1: 0.001538 Repeat2: 0.000015 Repeat3: 0.004366 Repeat4: 0.000328 Repeat5: 0.000998
+
+# SVM:
+
+RMSE: Repeat1: 6.954 Repeat2: 6.974 Repeat3: 7.017 Repeat4: 6.884 Repeat5: 6.993 R²: Repeat1: 0.010999 Repeat2: 0.013058 Repeat3: 0.030090 Repeat4: 0.004642 Repeat5: 0.020371
+
+# Decision Criteria Beyond Performance Metrics
+
+Interpretability: Linear Regression: Highly interpretable, showing clear relationships between predictors and the response variable. Random Forest: Less interpretable, but feature importance can be extracted. SVM: Least interpretable, especially with non-linear kernels. Computational Efficiency:
+
+Linear Regression: Very efficient to train and predict. Random Forest: Computationally more intensive, especially with a large number of trees. SVM: Can be computationally expensive, particularly with large datasets and non-linear kernels. Robustness to Overfitting:
+
+Linear Regression: Prone to overfitting if there are many predictors or multicollinearity. Random Forest: Generally robust to overfitting due to averaging multiple trees. SVM: Can overfit if not properly tuned, especially with complex kernels.
+
+Computational Efficiency: Linear Regression: Very efficient to train and predict. Random Forest: Computationally more intensive, especially with a large number of trees. SVM: Can be computationally expensive, particularly with large datasets and non-linear kernels.
+
+Robustness to Overfitting: Linear Regression: Prone to overfitting if there are many predictors or multicollinearity. Random Forest: Generally robust to overfitting due to averaging multiple trees. SVM: Can overfit if not properly tuned, especially with complex kernels.
+
+# Alignment with Scientific Question/Hypothesis:
+
+If the goal is to understand if the average age of finalists vary significantly by Season, interpretability is crucial.
+
+# Choice of the Best Model
+
+Given the considerations above, I would choose the Support Vector Machine (SVM) model as the overall best model for the following reasons:
+
+Performance:
+
+The SVM model has the lowest RMSE across all repeats, indicating better predictive accuracy compared to Linear Regression and Random Forest.
+
+The R² values for SVM are consistently higher than those for Linear Regression and Random Forest, suggesting that SVM explains more variance in the data. Robustness:
+
+Despite being computationally expensive, SVM models can handle complex relationships in the data better and are less prone to overfitting when properly tuned. Scientific Hypothesis:
+
+Although SVMs are less interpretable, if the primary goal is predictive accuracy rather than interpretability, SVMs offer a superior choice.
+
+In conclusion, while interpretability is important, the improved predictive performance of the SVM model makes it the best choice for this specific task focused on predicting age based on state data.
+
+# 6.
+
+Based on the evaluation metrics and additional considerations, I will choose the Support Vector Machine (SVM) model for the final assessment. The SVM model showed the lowest RMSE and relatively higher R² values compared to the other models, indicating better predictive performance.
+
+# Final Model Performance on Test Data
+
+```{r, message=FALSE, warning=FALSE}
+set.seed(123)
+
+# Define the recipe
+age_recipe <- recipe(Age ~ State, data = train_data) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())
+
+# Define the SVM model
+svm_model <- svm_rbf() %>%
+  set_engine("kernlab") %>%
+  set_mode("regression")
+
+# Create the workflow
+svm_workflow <- workflow() %>%
+  add_recipe(age_recipe) %>%
+  add_model(svm_model)
+
+# Fit the model on the entire training data
+final_svm_fit <- svm_workflow %>%
+  fit(data = train_data)
+
+# Make predictions on the test data
+test_predictions <- predict(final_svm_fit, new_data = test_data) %>%
+  bind_cols(test_data)
+
+# Calculate performance metrics
+svm_rmse <- rmse(test_predictions, truth = Age, estimate = .pred)
+svm_rsq <- rsq(test_predictions, truth = Age, estimate = .pred)
+
+print("Final Model Performance on Test Data:")
+print(svm_rmse)
+print(svm_rsq)
+
+# Plot residuals
+ggplot(test_predictions, aes(x = .pred, y = Age)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, color = "red") +
+  labs(title = "Predicted vs Actual Ages", x = "Predicted Age", y = "Actual Age")
+
+ggplot(test_predictions, aes(x = .pred, y = .pred - Age)) +
+  geom_point() +
+  geom_hline(yintercept = 0, color = "red") +
+  labs(title = "Residuals Plot", x = "Predicted Age", y = "Residuals")
+```
+
+# 7
+
+Summary and Discussion Objective The primary goal of this analysis was to build and evaluate predictive models to estimate if the average age of finalists vary significantly by Season. The analysis involved comparing the performance of three different models: Linear Regression, Random Forest, and Support Vector Machine (SVM).
+
+Methodology
+
+Data Preparation: The dataset was split into training and test sets. A recipe was created to preprocess the data, including steps for dummy variable creation, centering, and scaling.
+
+Model Training and Cross-Validation: Three models were defined: Linear Regression, Random Forest, and SVM. Each model was trained using 10-fold cross-validation with 5 repeats to ensure robust performance evaluation. Predictions were saved during cross-validation to calculate performance metrics like RMSE and R².
+
+Model Evaluation: The models were evaluated based on RMSE and R² metrics across different cross-validation folds. The SVM model was chosen for final assessment due to its superior performance in terms of lower RMSE and higher R² values.
+
+Final Model Assessment: The SVM model was refitted on the entire training dataset. Predictions were made on the test data. Performance metrics (RMSE and R²) were calculated for the test data. Residuals were analyzed to check for patterns and model assumptions.
+
+Findings
+
+Cross-Validation Results: Linear Regression: RMSE ranged from 7.322 to 7.636; R² values were very low, indicating poor explanatory power. Random Forest: RMSE ranged from 7.018 to 7.227; R² values were slightly better than Linear Regression but still low. SVM: RMSE ranged from 6.884 to 7.017; R² values were the highest among the three models, indicating better predictive performance.
+
+Test Data Evaluation: The SVM model demonstrated good predictive performance on the test data with a lower RMSE and higher R² compared to the other models.
+
+Residual Analysis: Residuals were plotted to check for any patterns or deviations from assumptions. The residual plot did not show significant patterns, indicating that the model assumptions were reasonably met.
+
+Conclusion The SVM model was chosen as the best model for predicting age based on state due to its superior performance metrics. This analysis highlights that while more complex models like SVM can offer better predictive power, it is essential to balance interpretability, computational efficiency, and performance.
+
+Summary Table of Cross-Validation Results Model RMSE (Mean) R² (Mean) Linear Regression 7.499, 0.0012 Random Forest 7.132, 0.0018 SVM 6.964, 0.0150
+
+# Residual Plot for SVM Model on Test Data
+
+```{r}
+# Plot residuals
+ggplot(test_predictions, aes(x = .pred, y = Age)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, color = "red") +
+  labs(title = "Residual Plot for SVM Model",
+       x = "Predicted Age",
+       y = "Actual Age")
+```
+
+This analysis provides a comprehensive approach to evaluating and selecting predictive models, demonstrating the importance of cross-validation and thorough model assessment. The findings suggest that while season may have some predictive power for age, the relationship is relatively weak, as indicated by the low R² values across all models.

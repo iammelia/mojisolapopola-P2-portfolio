@@ -1,5 +1,191 @@
 ---
-title: "Presentation Exercise"
+title: "presentation-exercise"
+author: Mojisola Popoola
+date: "`r Sys.Date()`"
+format: html
+editor: visual
+theme: cosmo
 ---
 
-Placeholder file for the future data/results presentation exercise.
+```{r}
+rm(list = ls())
+```
+
+# load libraries
+
+```{r, message=FALSE,warning=FALSE}
+library(readr)
+library(haven)
+library(ggplot2)
+library(dplyr)
+library(ggimage)
+library(maps)
+```
+
+# load data
+
+```{r}
+US_2020 <- read.csv("/Users/knowledgedivine/Desktop/practicum2/mojisolapopola-P2-portfolio/presentation-exercise/US_2020.csv")
+```
+
+```{r}
+US_2020_filtered <- US_2020[- 53, ]
+```
+
+# Replace all NA with 0
+
+```{r}
+US_2020_filtered[is.na(US_2020_filtered)] <- 0
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(usmap)
+
+# Get US map data including Hawaii and Alaska
+us_states <- us_map(regions = "states") %>% 
+  select(fips, state_abbr = abbr, state = full, geometry = geom)
+```
+
+# Merge data
+
+```{r}
+map_data <- merge(US_2020_filtered,us_states, by = "state_abbr")
+```
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(sf)
+
+# Assuming map_data is already loaded with the necessary columns
+
+# Create a column for party colors
+map_data <- map_data %>%
+  mutate(party_color = case_when(
+    winner == "D" ~ "darkblue",
+    winner == "R" ~ "darkred",
+    TRUE ~ "purple"
+  ))
+
+# Calculate centroids for text placement
+map_data <- map_data %>%
+  mutate(centroid = st_centroid(geometry),
+         x = st_coordinates(centroid)[,1],
+         y = st_coordinates(centroid)[,2])
+
+# Adjust the position of the Hawaii label
+map_data <- map_data %>%
+  mutate(x = ifelse(state == "Hawaii", x + 1, x),
+         y = ifelse(state == "Hawaii", y - 1, y))
+
+# Create a new column that shows the state and majority electoral votes
+map_data <- map_data %>%
+  mutate(label = case_when(
+    electoral_votes_Biden > electoral_votes_Trump ~ paste0(state, "\n", electoral_votes_Biden),
+    electoral_votes_Trump > electoral_votes_Biden ~ paste0(state, "\n", electoral_votes_Trump),
+    electoral_votes_Biden == electoral_votes_Trump ~ paste0(state, "\n", "split")
+  ))
+
+# Define small East Coast states
+small_states <- c("Massachusetts", "Rhode Island", "Connecticut", "New Jersey", "Delaware", "Maryland", "Vermont", "District of Columbia")
+small_states_data <- map_data %>% filter(state %in% small_states)
+
+# Define adjusted positions for labels outside the map
+small_states_data <- small_states_data %>%
+  mutate(x_label = case_when(
+    state == "Massachusetts" ~ x + 3,
+    state == "Rhode Island" ~ x + 3,
+    state == "Connecticut" ~ x + 3,
+    state == "New Jersey" ~ x + 3,
+    state == "Delaware" ~ x + 3,
+    state == "Maryland" ~ x + 3,
+    state == "Vermont" ~ x + 3,
+    state == "District of Columbia" ~ x + 3,
+    TRUE ~ x),
+    y_label = y)
+
+# Create the election map
+election_map <- ggplot(data = map_data) +
+  geom_sf(aes(geometry = geometry, fill = party_color), color = "white", size = 0.1) +
+  geom_text(data = map_data, aes(x = x, y = y, label = label), color = "white") +
+  geom_text(data = filter(map_data, state == "Hawaii"), aes(x = x, y = y, label = label), color = "black") +
+  geom_text(data = small_states_data, aes(x = x_label, y = y_label, label = label), color = "white") +
+  geom_segment(data = small_states_data, aes(x = x, y = y, xend = x_label, yend = y_label), color = "white") +
+  scale_fill_manual(values = c("darkblue" = "darkblue", "darkred" = "darkred", "purple" = "purple"),
+                    labels = c("darkblue" = "Biden\n306", "darkred" = "Trump\n232", "purple" = "split"),
+                  name = "") +
+      guides(fill = guide_legend(title = NULL)) +
+  theme_void() +
+  theme(legend.position = "right",
+        legend.text.align = 0)
+  
+# Print the election map
+print(election_map)
+```
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(sf)
+
+# Assuming map_data is already loaded with the necessary columns
+
+# Create a column for party colors
+map_data <- map_data %>%
+  mutate(party_color = case_when(
+    winner == "D" ~ "darkblue",
+    winner == "R" ~ "darkred",
+    TRUE ~ "purple"
+  ))
+
+# Calculate centroids for text placement
+map_data <- map_data %>%
+  mutate(centroid = st_centroid(geometry),
+         x = st_coordinates(centroid)[,1],
+         y = st_coordinates(centroid)[,2])
+
+# Adjust the position of the Hawaii label
+map_data <- map_data %>%
+  mutate(x = ifelse(state == "Hawaii", x + 1, x),
+         y = ifelse(state == "Hawaii", y - 1, y))
+
+# Create a new column that shows the state and majority electoral votes
+map_data <- map_data %>%
+  mutate(label = case_when(
+    electoral_votes_Biden > electoral_votes_Trump ~ paste0(state, "\n", electoral_votes_Biden),
+    electoral_votes_Trump > electoral_votes_Biden ~ paste0(state, "\n", electoral_votes_Trump),
+    electoral_votes_Biden == electoral_votes_Trump ~ paste0(state, "\n", "split")
+  ))
+
+# Define small East Coast states
+small_states <- c("Massachusetts", "Rhode Island", "Connecticut", "New Jersey", "Delaware", "Maryland", "Vermont", "District of Columbia")
+small_states_data <- map_data %>% filter(state %in% small_states)
+
+# Define adjusted positions for labels outside the map
+small_states_data <- small_states_data %>%
+  mutate(x_label = x + 3,
+         y_label = y)
+
+# Create the election map
+election_map <- ggplot(data = map_data) +
+  geom_sf(aes(geometry = geometry, fill = party_color), color = "white", size = 0.1) +
+  geom_text(data = map_data, aes(x = x, y = y, label = label), color = "white") +
+  geom_text(data = filter(map_data, state == "Hawaii"), aes(x = x, y = y, label = label), color = "black") +
+  geom_text(data = small_states_data, aes(x = x_label, y = y_label, label = label), color = "white", hjust = 0) +
+  geom_segment(data = small_states_data, aes(x = x, y = y, xend = x_label, yend = y_label), color = "white") +
+  scale_fill_manual(values = c("darkblue" = "darkblue", "darkred" = "darkred", "purple" = "purple"),
+                    labels = c("darkblue" = "Biden\n306", "darkred" = "Trump\n232", "purple" = "split"),
+                    name = "") +
+  guides(fill = guide_legend(title = NULL)) +
+  ggtitle("2020 Electoral Vote Distribution") +
+  theme_void() +
+  theme(legend.position = "right",
+        legend.text.align = 0,
+        plot.title = element_text(hjust = 0.5))
+
+# Print the election map
+print(election_map)
+
+```

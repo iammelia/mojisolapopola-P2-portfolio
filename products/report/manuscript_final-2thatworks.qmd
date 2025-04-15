@@ -1,0 +1,751 @@
+---
+title: "Honey Bee Colonies Impacted by Varroa, American Foulbrood and Global Warming"
+subtitle: ""
+author: Edward Cruz, Jr., Leonel G. Salazar, Amelia Tristan, Mojisola Popoola
+date: today
+format:
+  html:
+    toc: false
+    number-sections: true
+    highlight-style: github
+bibliography: ../citations.bib 
+csl: ../apa.csl
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# load a few R packages
+library(here)
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(showtext)
+library(ggimage)
+
+```
+
+# Summary/Abstract
+
+Group Ten is conducting a comprehensive analysis of historical data from
+various public agencies to evaluate the impact of Varroa mites, American
+Foulbrood, and global warming on hive losses in the United States.This
+research utilizes extensive datasets from the National Agricultural
+Statistics Service, the Agricultural Statistics Board, and the United
+States Department of Agriculture (USDA), encompassing multiple years of
+data. The data highlights the topic on hive losses attributed to mites,
+bacterial infections, and environmental factors related to global
+warming. Through advanced data visualization techniques in R, we aim to
+demonstrate and validate the detrimental effects of these factors on
+honeybee colonies, highlighting the consequent implications for honey
+production and broader food security. ***Dennis and Kemp's study on
+honey bee hive collapse [@hivecollapse] provides important insights into
+Allee effects and ecological resilience.***
+
+{{< pagebreak >}}
+
+# Introduction
+
+Honeybees have served as nature's pollinators for centuries. With their
+relationship with humans documented as far back as ancient Egyptian and
+Hindu cultures. Historically, humans have maintained beehives and
+utilized honey for its medicinal properties in various civilizations,
+including the Egyptians, Assyrians, Chinese, Greeks, and Romans. Honey's
+natural antibacterial qualities made it a valuable treatment for wounds.
+This was a practice continued by Romans and Russians during World War I.
+Honeybees and other pollinators are essential for food production and
+nutritional security. But even though they face numerous survival
+challenges Varroa mites pose a significant threat to bee colonies. These
+tiny red-brown parasites live on adult honeybees and reproduce on larvae
+and pupae. Another major threat is American Foulbrood Disease (AFB).
+This is caused by the bacterium Paenibacillus larvae, which is fatal to
+honeybee larvae and requires incineration of infected hives to prevent
+its spread. The impact of climate change on honeybee colony losses is a
+growing area of research. While correlations have been found between
+higher winter temperatures and increased colony losses, the effects of
+warmer autumn and winter temperatures on colony dynamics and survival
+require further investigation. ***Dennis and Kemp's study on honey bee
+hive collapse [@hivecollapse] provides important insights into Allee
+effects and ecological resilience.***[@usda_honey_bees; @usda_nass]
+
+### Composition of Honey
+
+The first image is a pie chart that illustrates the composition of honey
+by percentage. The main components are:
+
+-   **Fructose**: 38.5%
+-   **Glucose**: 31%
+-   **Water**: 17.1%
+-   **Maltose**: 7.2%
+-   **Other components**:
+    -   Sucrose: 1.5%
+    -   Minerals, Vitamins, Enzymes: 0.5%
+    -   Trisaccharides, Carbohydrates: 4.2%
+
+This composition indicates that honey is primarily made up of sugars,
+specifically fructose and glucose, with water being the third major
+component. The presence of minerals, vitamins, and enzymes, though in
+smaller amounts, adds nutritional value to honey. This detailed
+breakdown underscores honey's role as a natural sweetener with
+additional health benefits beyond its primary carbohydrate content.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# Create a data frame with the composition of honey
+honey_data <- data.frame(
+  component = c("Fructose", "Glucose", "Water", "Maltose", "Trisaccharides, Carbohydrates", "Sucrose", "Minerals, Vitamins, Enzymes"),
+  percentage = c(38.5, 31.0, 17.1, 7.2, 4.2, 1.5, 0.5)
+)
+
+# Define colors for the segments
+honey_data$color <- c("#FFA726", "#FB8C00", "#FFD54F", "#FFB74D", "#90CAF9", "#F06292", "#BA68C8")
+
+# Plot with ggplot2
+ggplot(honey_data, aes(x = "", y = percentage, fill = component)) +
+  geom_bar(width = 0.8, stat = "identity", color = "white") +
+  coord_polar("y", start = 0) +
+  scale_fill_manual(values = honey_data$color) +
+  geom_text(aes(x=1.8, label = paste0(percentage, "%")), position = position_stack(vjust = 0.6), size = 3, color = "black") +
+  labs(
+    title = "COMPOSITION OF HONEY",
+    subtitle = "Illustration of honey components by percentage",
+    fill = NULL
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 22, face = "bold", hjust = 0.5, family = "lobster"),
+    plot.subtitle = element_text(size = 14, hjust = 0.5),
+    legend.position = "bottom",
+    legend.text = element_text(size = 12)
+  )
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(sf)
+library(maps)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+states <- st_as_sf(map("state", plot = FALSE, fill = TRUE))
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+varroa_data <- data.frame(
+  state = c("alabama", "alaska", "arizona", "arkansas", "california", "colorado", 
+            "connecticut", "delaware", "florida", "georgia", "hawaii", "idaho", 
+            "illinois", "indiana", "iowa", "kansas", "kentucky", "louisiana", 
+            "maine", "maryland", "massachusetts", "michigan", "minnesota", 
+            "mississippi", "missouri", "montana", "nebraska", "nevada", "new hampshire", 
+            "new jersey", "new mexico", "new york", "north carolina", "north dakota", 
+            "ohio", "oklahoma", "oregon", "pennsylvania", "rhode island", 
+            "south carolina", "south dakota", "tennessee", "texas", "utah", 
+            "vermont", "virginia", "washington", "west virginia", "wisconsin", "wyoming"),
+  year = c("1986 - 1987", "1988 - 1989", "1990 - 1991", "1992 - 1993", "1994 - 1995",
+           "1986 - 1987", "1988 - 1989", "1990 - 1991", "1992 - 1993", "1994 - 1995",
+           "1986 - 1987", "1988 - 1989", "1990 - 1991", "1992 - 1993", "1994 - 1995",
+           "1986 - 1987", "1988 - 1989", "1990 - 1991", "1992 - 1993", "1994 - 1995",
+           "1986 - 1987", "1988 - 1989", "1990 - 1991", "1992 - 1993", "1994 - 1995",
+           "1986 - 1987", "1988 - 1989", "1990 - 1991", "1992 - 1993", "1994 - 1995",
+           "1986 - 1987", "1988 - 1989", "1990 - 1991", "1992 - 1993", "1994 - 1995",
+           "1986 - 1987", "1988 - 1989", "1990 - 1991", "1992 - 1993", "1994 - 1995",
+           "1986 - 1987", "1988 - 1989", "1990 - 1991", "1992 - 1993", "1994 - 1995",
+           "1986 - 1987", "1988 - 1989", "1990 - 1991", "1992 - 1993", "1994 - 1995")
+)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+states <- merge(states, varroa_data, by.x = "ID", by.y = "state", all.x = TRUE)
+```
+
+### Spread of Varroa Mites
+
+The second image is a map illustrating the spread of Varroa mites in the
+United States from 1986 to 1995. The map uses different colors to
+represent the year of the first appearance of Varroa mites in each
+state:
+
+-   **1986 - 1987**: Red
+-   **1988 - 1989**: Yellow
+-   **1990 - 1991**: Green
+-   **1992 - 1993**: Blue
+-   **1994 - 1995**: Grey
+-   **NA**: States where data is not available
+
+The map reveals the progressive spread of Varroa mites from the
+mid-1980s to the mid-1990s, affecting bee colonies across the country.
+The earliest appearances were concentrated in specific regions and
+gradually spread to more states over time. This visual representation
+highlights the increasing geographical distribution of Varroa mites and
+underscores the growing challenge they pose to beekeeping and
+agricultural industries in the United States.
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(data = states) +
+  geom_sf(aes(fill = year), color = "#292929", size = 0.2) +
+  scale_fill_manual(
+    values = c(
+      "1986 - 1987" = "#CD2626", 
+      "1988 - 1989" = "#CD9B1D", 
+      "1990 - 1991" = "#FFD700", 
+      "1992 - 1993" = "#00CD00", 
+      "1994 - 1995" = "#104E8B"
+    ),
+    na.value = "#757575"
+  ) +
+  theme_minimal() +
+  labs(
+    title = "Spread of Varroa Mites",
+    fill = "Year of First Appearance"
+  )
+
+```
+
+***[@varroamap] Varroa Map of infestation periods***
+
+```{r}
+# Load necessary libraries
+library(tidyverse)
+
+# Create a data frame with the provided data
+data <- tibble(
+  Year = 1901:2023,
+  `Earth's surface` = c(-0.15, -0.43, -1.4, -0.86, -1.02, -0.29, -0.54, 0.06, -0.59, 0.4, 0.01, -1.79, -0.48, -0.18, -0.57, -1.17, -1.96, -0.15, -0.47, -0.95, 1.78, 0.01, -0.38, -1.43, 0.5, -0.07, 0.13, -0.1, -1.17, -0.04, 1.52, -0.29, 0.97, 2.08, -0.12, 0.13, -0.47, 1.16, 1.24, -0.13, 0.64, -0.18, 0.05, -0.19, -0.27, 0.93, -0.1, -0.41, 0, -0.63, -0.9, 0.25, 1.35, 1.31, -0.33, 0.32, 0.02, -0.09, 0.09, -0.58, -0.15, -0.12, 0.24, -0.35, -0.33, -0.53, -0.26, -0.7, -0.52, -0.41, -0.36, -0.65, 0.27, 0.24, -0.52, -0.55, 0.53, -0.97, -1.14, 0.37, 1.1, -0.67, -0.14, -0.04, -0.72, 1.3, 1.31, 0.61, -0.18, 1.49, 1.14, 0.58, -0.76, 0.85, 0.63, -0.13, 0.18, 2.21, 1.86, 1.25, 1.68, 1.19, 1.24, 1.08, 1.62, 2.23, 1.63, 0.27, 0.37, 0.96, 1.16, 3.26, 0.41, 0.52, 2.38, 2.9, 2.53, 1.5, 0.66, 2.35, 2.49, 1.37, 2.39),
+  `Lower troposphere (UAH)` = c(rep(NA, 78), 0.049093434, 0.731593434, 1.102093434, 0.008593434, 0.034093434, 0.292093434, 0.110593434, 1.220593434, 1.054093434, 0.698593434, 0.548593434, 1.451593434, 1.031593434, 0.484093434, -0.174406566, 1.043593434, 0.797593434, 0.502093434, 0.457093434, 1.691593434, 1.796593434, 1.351093434, 1.255093434, 0.994093434, 1.223593434, 0.769093434, 1.303093434, 1.444093434, 1.765093434, 0.467593434, 0.524593434, 0.929593434, 1.013593434, 1.955593434, 0.655093434, 0.763093434, 2.234593434, 2.030593434, 2.252593434, 1.645093434, 1.133593434, 1.970593434, 2.059093434, 1.567093434, NA),
+  `Lower troposphere (RSS)` = c(rep(NA, 78), -0.808971111, 0.178178889, 0.658778889, -0.579771111, -0.383871111, -0.217371111, -1.053021111, 0.737978889, 1.111328889, 0.557978889, 0.221828889, 1.280228889, 1.043228889, 0.585278889, -0.261321111, 1.078178889, 0.772628889, 0.278078889, 0.418178889, 1.911578889, 1.882928889, 1.471328889, 1.536578889, 1.144628889, 1.465628889, 1.058528889, 1.583078889, 1.749278889, 1.858928889, 0.503378889, 0.595928889, 0.997028889, 1.109378889, 2.677328889, 0.696278889, 0.781478889, 2.547878889, 2.476328889, 2.350478889, 1.793978889, 1.221428889, 2.290628889, 2.485328889, 1.596878889, 1.886228889)
+)
+# Pivot the data for plotting
+data_long <- data %>%
+  pivot_longer(cols = c(`Earth's surface`, `Lower troposphere (UAH)`, `Lower troposphere (RSS)`), 
+               names_to = "Measurement", values_to = "Temperature")
+
+# Create the plot
+ggplot(data_long, aes(x = Year, y = Temperature, color = Measurement)) +
+  geom_line(size = 1) +
+  geom_point(size = 1.5) +
+  theme_minimal() +
+  labs(
+    title = "Temperature Changes Over the Years",
+    x = "Year",
+    y = "Temperature Anomaly (°C)",
+    color = "Measurement"
+  ) +
+  scale_color_manual(values = c("Earth's surface" = "#254976", "Lower troposphere (UAH)" = "#4A8C1D", "Lower troposphere (RSS)" = "#B5153A"))
+
+```
+
+[@epa_climate_indicator] ***Global warming trends from 1900-2024***
+
+***Spread of Varroa Mite by Year of First Apperance [@varroamap]***
+Written By:sdns6mchl4. (2016, February 24). Varroa mite spread in the
+United States. Beesource Beekeeping Forums.
+https://www.beesource.com/threads/varroa-mite-spread-in-the-united-states.365462/
+
+\## General Background Information
+
+### **Uncapped Honey Floresville,Texas Hive**
+
+![](/images/Bee%20Frame%202024.jpg){fig-align="center"}
+
+### **Capped Honey one Month Later same hive frame- Italian bees Floresville, Texas**
+
+![](/images/Bee%20Frame%20Capped%20Honey.jpg){fig-align="center"}
+
+## Description of data and data source
+
+Bee colonies maintained by beekeepers are considered livestock by the
+USDA due to their ability to produce honey, a consumable food item, and
+their essential role in assisting farmers with pollination crop seasons.
+Given the importance of bee colonies in agriculture, it was logical to
+source data from the following two authoritative websites: 1. USDA
+National Agricultural Statistics Service (NASS): This site provides
+comprehensive agricultural data, including statistics on honey
+production and colony health. 2. Bee Informed Partnership: This site
+offers detailed insights and research on bee colony management and
+health, contributing valuable information on the status and trends of
+bee populations. Index Catalog // USDA Economics, Statistics and Market
+Information System. (n.d.-a).
+https://usda.library.cornell.edu/catalog?f%5Bkeywords_sim%5D%5B%5D=honey+bees&locale=en\
+USDA - National Agricultural Statistics Service - Surveys - honey bee
+surveys and reports. (n.d.).
+https://www.nass.usda.gov/Surveys/Guide_to_NASS_Surveys/Bee_and_Honey/
+
+## Questions/Hypotheses to be addressed
+
+Hypothesis: "The negative impacts of mites, bacterium, and global
+warming have detrimental effects on honeybee colonies in the United
+States and Texas, which in turn will lead to a decline in honey
+production and negatively impact food production." This hypothesis can
+be tested and validated through a visualization of outcomes using R,
+demonstrating the relationship between these factors and their effects
+on honeybee colonies.
+
+### **Bacterium Infection Foul Brood**
+
+![](/images/American-Foul-Brood-Comb-1024x768-1.jpg){fig-align="center"}
+
+### **Dead bees resulting from extreme heat found in hive**
+
+![](/images/dead-bees-hive-colony-collapse-600nw-2289939105.webp)
+
+#Citation section To cite other work (important everywhere, but likely
+happens first in introduction), make sure your references are in the
+bibtex file specified in the YAML header above and have the right bibtex
+key. Then you can include like this:
+
+Examples of reproducible research projects can for instance be found in
+[@mckay2020; @mckay2020a].
+
+#Here are the BibTex entries for citations:
+
+Using this in RMarkdown: #Make sure to save these entries in a file
+names'reference.bib' and include it in your R Markdown document like
+this:
+
+{{< pagebreak >}}
+
+# Methods
+
+*Describe your methods. That should describe the data, the cleaning
+processes, and the analysis approaches. You might want to provide a
+shorter description here and all the details in the supplement.*
+
+## Schematic of workflow
+
+Sometimes you might want to show a schematic diagram/figure that was not
+created with code (if you can do it with code, do it). @fig-schematic is
+an example of some - completely random/unrelated - schematic that was
+generated with Biorender. We store those figures in the `assets` folder.
+
+
+
+## Data aquisition
+
+We got our data from the United States Department of Agriculture (USDA).
+
+## Data import and cleaning
+
+We decided to clean out our data from a few different datasets. We had
+to remove blank spaces and columns that were not pertinent to our
+analysis. We then filtered out other observations that did not directly
+deal with the data we are exploring. We are looking for cause of death
+to bee colonies and how they are affected by mites and climate change so
+we wanted to single out data that represented the losses so we can
+explore the different states by year and determine how the colonies were
+affected.
+
+```{r}
+library(readxl)
+library(tidyverse)
+library(ggplot2)
+library(knitr)
+```
+
+```{r}
+
+library(here)
+
+
+# Install and load the here package
+#install.packages("here")
+library(here)
+
+here()
+# Create a 'data' directory within the project
+dir.create(here("data"))
+
+
+
+
+
+
+data <- read.csv("/Users/knowledgedivine/Desktop/practicum2/mojisolapopola-P2-portfolio/starter-analysis-exercise/products/report/DatabyState.csv")
+```
+
+```{r}
+# Select all columns except 3, 6, and 9
+Data_Clean <- dplyr::select(data, -c(3, 6, 9))
+```
+
+```{r}
+# Output cleaned data file to a csv file.
+
+write.csv(Data_Clean, "Data_Clean.csv", row.names = FALSE)
+
+#write.csv(Data_Clean, "C:/Users/ecruz/OneDrive/Documents/UTSA - Data Science Program/Semester Classes/Practicum II #Repository/P2-Practicum-II-Portfolio-EdwardCruz/docs/Databystate_Clean.csv")
+```
+
+```{r}
+# Assuming your data frame is named "data"
+
+# Filter for rows where "Loss" or "Deadout" is present in any column (case-insensitive)
+
+library(stringr)  # Load stringr package for regular expressions
+data_filtered <- Data_Clean[rowSums(sapply(data, grepl, pattern = c("Loss"), ignore.case = TRUE)) > 0, ]
+```
+
+```{r}
+# Output cleaned data file to a csv file.
+
+write.csv(data_filtered, "Data_Filtered.csv", row.names = FALSE)
+
+write.csv(Data_Clean, "/Users/knowledgedivine/Desktop/practicum2/mojisolapopola-P2-portfolio/starter-analysis-exercise/products/report/Databystate_Filtered.csv")
+```
+
+```{r}
+# View data str to see what class they are.
+
+str(data_filtered)
+```
+
+### Boxplot of Value by Year and Data Item
+
+The third image is a boxplot comparing the values for "LOSS, COLONY
+COLLAPSE DISORDER" and "LOSS, DEADOUT" from 2015 to 2017. The boxplot
+provides insights into: - The central tendency and spread of losses due
+to both disorders. - Presence of outliers indicates that there are
+occasional, significantly higher losses. - Comparative analysis shows
+that both types of losses have varying distributions each year.
+
+This indicates that while both types of losses are present each year,
+the magnitude and frequency of extreme loss events can differ,
+suggesting variability in the factors contributing to colony losses.
+
+```{r}
+
+# Load necessary libraries
+library(ggplot2)
+library(here)
+
+str(data_filtered)
+
+# Load the dataset
+#data_filtered <- read.csv(here::here("Data_Filtered.csv"), stringsAsFactors = FALSE)
+data_filtered<-read.csv("/Users/knowledgedivine/Desktop/practicum2/mojisolapopola-P2-portfolio/starter-analysis-exercise/products/report/Data_Filtered.csv")
+
+# Convert 'Value' to numeric
+data_filtered$Value <- as.numeric(gsub(",", "", data_filtered$Value))
+
+# Handle missing values by replacing NAs with the median value
+data_filtered$Value[is.na(data_filtered$Value)] <- median(data_filtered$Value, na.rm = TRUE)
+
+# Boxplot of Value by Year and Data.Item
+ggplot(data_filtered, aes(x = factor(Year), y = Value, fill = Data.Item)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = comma) +
+  labs(title = "Boxplot of Value by Year and Data.Item", x = "Year", y = "Value") +
+  theme_minimal()
+```
+
+### Scatterplot of Value by State ANSI
+
+The fourth image is a scatterplot showing values for different states
+(ANSI coded) across the years 2015 to 2017. Key points include: - Each
+color represents a different year (2015: Red, 2016: Green, 2017:
+Blue). - The scatterplot reveals the distribution of values across
+states and highlights any trends or patterns over the three years.
+
+This scatterplot indicates that while some states experience
+consistently high or low values, others show significant variability
+year over year. This could suggest regional differences in factors
+affecting bee colony health.
+
+```{r}
+# Scatterplot of Value by State.ANSI
+ggplot(data_filtered, aes(x = State.ANSI, y = Value, color = factor(Year))) +
+  geom_point() +
+  labs(title = "Scatterplot of Value by State.ANSI", x = "State.ANSI", y = "Value") +
+  theme_minimal()
+
+
+
+```
+
+### Boxplot of Value by Period and Data Item
+
+The fifth image is a boxplot comparing the values for "LOSS, COLONY
+COLLAPSE DISORDER" and "LOSS, DEADOUT" across different periods of the
+year: - **APR THRU JUN** - **JAN THRU MAR** - **JUL THRU SEP** - **OCT
+THRU DEC**
+
+Key insights include: - Seasonal trends in colony losses, with some
+periods showing higher median losses or more variability. - Outliers
+indicate extreme loss events occurring in specific periods.
+
+This seasonal analysis suggests that certain times of the year are more
+prone to higher losses, potentially due to environmental factors,
+resource availability, or management practices.
+
+```{r}
+# Load necessary library
+library(ggplot2)
+library(scales)
+
+
+# Assuming data_filtered is already loaded and has the required columns
+
+# Create the plot
+p <- ggplot(data_filtered, aes(x = Period, y = Value, fill = Data.Item)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_y_continuous(labels = comma) +
+  labs(title = "Boxplot of Value by Period and Data.Item", x = "Period", y = "Value")
+
+# Print the plot
+print(p)
+
+
+```
+
+### Boxplot of Value by Period and Data Item
+
+The fifth image is a boxplot comparing the values for "LOSS, COLONY
+COLLAPSE DISORDER" and "LOSS, DEADOUT" across different periods of the
+year: - **APR THRU JUN** - **JAN THRU MAR** - **JUL THRU SEP** - **OCT
+THRU DEC**
+
+Key insights include: - Seasonal trends in colony losses, with some
+periods showing higher median losses or more variability. - Outliers
+indicate extreme loss events occurring in specific periods.
+
+This seasonal analysis suggests that certain times of the year are more
+prone to higher losses, potentially due to environmental factors,
+resource availability, or management practices.
+
+### Overall Analysis
+
+-   The composition of honey indicates its high sugar content, essential
+    for energy but also highlighting the presence of beneficial
+    components like enzymes and vitamins.
+-   The spread of Varroa mites map highlights the widespread and growing
+    impact of these pests over time, emphasizing the need for ongoing
+    management and control efforts.
+-   The boxplots and scatterplots provide a detailed view of the
+    variability and trends in colony losses due to different factors,
+    both over time and across different regions. These plots suggest
+    that while losses are a consistent issue, their magnitude and causes
+    can vary widely, pointing to the need for tailored strategies to
+    address colony health.
+
+These visualizations collectively provide a comprehensive overview of
+the challenges faced by bee colonies, from composition and health to
+external threats like Varroa mites and seasonal variations in losses.
+
+### **VARROA MITE EXPOSED**
+
+![](/images/_20220406_on_varroadestructor_minden_00463080.jpg){fig-align="center"}
+
+### **VARROA MITE**
+
+![](/images/Varrpa%201.webp){fig-align="center" width="527"}
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(reshape2)
+library(cluster)
+library(car)
+library(factoextra)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(e1071)
+
+```
+
+```{r}
+# Load your dataset
+# Assuming your data frame is named 'data_hcny'
+
+#data_hcny <- read.csv(here("hcny_CleanDraft.csv"))
+
+
+data_hcny <- read.csv("/Users/knowledgedivine/Desktop/practicum2/mojisolapopola-P2-portfolio/starter-analysis-exercise/products/report/hcny_CleanDraft.csv")
+
+data_clean <- na.omit(data_hcny)
+
+
+
+```
+
+```{r}
+# Descriptive Statistics
+print("Descriptive Statistics:")
+summary(data_clean)
+str(data_clean)
+```
+
+```{r}
+# Visualizations
+
+# Bar Plot for varroa_mites by State
+ggplot(data_clean, aes(x = state, y = varroa_mites)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Varroa Mites by State", y = "Percentage", x = "State")
+```
+
+```{r}
+str(data_clean)
+```
+
+```{r}
+# Stacked Bar Plot
+data_long <- data_clean %>%
+  gather(key = "factor", value = "percentage", -state)
+
+ggplot(data_long, aes(x = state, y = percentage, fill = factor)) +
+  geom_bar(stat = "identity") +
+ theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Factors Affecting Bees by State", y = "Percentage", x = "State")
+```
+
+```{r}
+# Heatmap
+data_melt <- melt(data_clean, id.vars = "state")
+
+ggplot(data_melt, aes(x = variable, y = state, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "red") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Heatmap of Factors Affecting Bees", y = "State", x = "Factor")
+```
+
+```{r}
+# Pie Chart for the United States
+us_data <- data_clean %>%
+  filter(state == "United States") %>%
+  dplyr::select(-state) %>%
+  gather(key = "factor", value = "percentage")
+
+ggplot(us_data, aes(x = "", y = percentage, fill = factor)) +
+  geom_bar(width = 1, stat = "identity") +
+  coord_polar("y") +
+  theme_void() +
+  labs(title = "Distribution of Factors Affecting Bees in the United States")
+```
+
+```{r}
+# Correlation Analysis
+cor_data <- cor(data_clean[,-1])
+print("Correlation Matrix:")
+print(cor_data)
+```
+
+```{r}
+# Assumption Checks for Descriptive Analysis
+print("Assumption Checks:")
+```
+
+```{r}
+# Normality check
+shapiro_results <- lapply(data_clean[-1], function(column) shapiro.test(column))
+print("Shapiro-Wilk Test for Normality:")
+print(shapiro_results)
+```
+
+```{r}
+# Homogeneity of variances
+
+levene_results <- leveneTest(varroa_mites ~ state, data = data_clean)
+print("Levene's Test for Homogeneity of Variances:")
+print(levene_results)
+```
+
+```{r}
+# Cluster Analysis
+data_cluster <- data_clean %>%
+  filter(state != "United States") %>%
+  dplyr::select(-state)
+
+hc <- hclust(dist(data_cluster), method = "complete")
+plot(hc, labels = data_clean$state[data_clean$state != "United States"], main = "Hierarchical Clustering of States")
+```
+
+```{r}
+# Principal Component Analysis (PCA)
+data_pca <- data_clean %>%
+  filter(state != "United States") %>%
+  dplyr::select(-state) %>%
+  scale()
+```
+
+```{r}
+pca_result <- prcomp(data_pca, center = TRUE, scale. = TRUE)
+summary(pca_result)
+```
+
+```{r}
+fviz_pca_var(pca_result, col.var = "contrib", gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"))
+
+```
+
+```{r}
+str(data_clean)
+```
+
+```{r}
+# Support Vector Machine (SVM)
+svm_model <- svm(varroa_mites ~ other_pests + disease + pesticides + other + unknown, data = data_clean)
+summary(svm_model)
+```
+
+```{r}
+# Assuming predictions and data_clean$varroa_mites are already created
+
+# Example data
+data_clean <- data.frame(
+  Varroa_Mites = c(5, 10, 15, 20),
+  other_variable = c(2, 4, 6, 8)
+)
+
+# Fit a linear model
+model <- lm(Varroa_Mites ~ other_variable, data = data_clean)
+
+# Generate predictions
+predictions <- predict(model, newdata = data_clean)
+
+
+# Plot the data
+plot(predictions, data_clean$varroa_mites, 
+     xlab = "Predictions", 
+     ylab = "Varroa Mites", 
+     main = "Predictions vs Varroa Mites",
+     las = 1, # makes y-axis labels horizontal
+     cex.lab = 1.2, # increases axis labels size
+     cex.axis = 1.2) # increases tick labels size
+
+```
+
+### **Honey Bee Collecting Pollen**
+
+![](/images/Bee%20Feeding.jpg){fig-align="center"}
+
+### Honey Bee with exposed bloated Varroa Mite
+
+![](images/varroa-mite-bee.jpg){fig-align="center"}
+
+```{r}
+# Write the cleaned data to a new CSV file
+
+
+# Assuming your dataset is named data_hcny
+data_hcny_clean <- data_hcny %>% drop_na()
+
+
+write.csv(data_hcny_clean, here("hcnydata_cleaned.csv"), row.names = FALSE)
+
+#write.csv(hcnydata_cleaned, "C:/Users/ecruz/OneDrive/Documents/UTSA - Data Science Program/Semester Classes/Practicum II Repository/P2-Practicum-II-Portfolio-EdwardCruz/hcny_CleanDraft.csv", row.names = FALSE)
+```
+
+## Full analysis
+
+##The full analysis is still pending###
+
+{{< pagebreak >}}
+
+# References

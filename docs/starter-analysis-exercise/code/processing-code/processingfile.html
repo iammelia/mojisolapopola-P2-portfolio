@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.553">
+<meta name="generator" content="quarto-1.4.555">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Andreas Handel">
 <meta name="dcterms.date" content="2023-01-03">
 
-<title>YOURNAME Data Analysis Portfolio - An example cleaning script</title>
+<title>Mojisolapopoola Data Analysis Portfolio - An example cleaning script</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -115,7 +115,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../../index.html">
-    <span class="navbar-title">YOURNAME Data Analysis Portfolio</span>
+    <span class="navbar-title">Mojisolapopoola Data Analysis Portfolio</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -138,15 +138,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Starter Analysis Exercise</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../../coding-exercise/coding-exercise.html">
+    <a class="dropdown-item" href="../../../coding-exercise/coding-exercise.qmd">
  <span class="dropdown-text">R Coding Exercise</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../data-exercise/data-exercise.html">
+ <span class="dropdown-text">Data Exercise</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../cdcdata-exercise/cdcdata-exercise.qmd">
+ <span class="dropdown-text">cdcData Exercise</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../../presentation-exercise/presentation-exercise.html">
  <span class="dropdown-text">Presentation Exercise</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../../../tidytuesday-exercise/tidytuesday-exercise.html">
+    <a class="dropdown-item" href="../../../tidytuesday-exercise/tidytuesday-exercise.qmd">
  <span class="dropdown-text">Tidy Tuesday Exercise</span></a>
   </li>  
     </ul>
@@ -296,7 +304,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </div>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(rawdata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <caption>Data summary</caption>
 <tbody>
 <tr class="odd">
@@ -338,7 +346,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: character</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 19%">
 <col style="width: 13%">
@@ -385,7 +393,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: numeric</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 17%">
 <col style="width: 12%">
@@ -442,7 +450,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">Height =</span> <span class="fu">as.numeric</span>(Height))</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <caption>Data summary</caption>
 <tbody>
 <tr class="odd">
@@ -484,7 +492,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: character</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 19%">
 <col style="width: 13%">
@@ -521,7 +529,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: numeric</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 17%">
 <col style="width: 12%">
@@ -594,7 +602,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>d2 <span class="ot">&lt;-</span> d1 <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>( <span class="at">Height =</span> <span class="fu">replace</span>(Height, Height<span class="sc">==</span><span class="st">"6"</span>,<span class="fu">round</span>(<span class="dv">6</span><span class="sc">*</span><span class="fl">30.48</span>,<span class="dv">0</span>)) )</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <caption>Data summary</caption>
 <tbody>
 <tr class="odd">
@@ -636,7 +644,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: character</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 19%">
 <col style="width: 13%">
@@ -673,7 +681,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: numeric</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 16%">
 <col style="width: 12%">
@@ -739,7 +747,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>d3 <span class="ot">&lt;-</span> d2 <span class="sc">%&gt;%</span>  dplyr<span class="sc">::</span><span class="fu">filter</span>(Weight <span class="sc">!=</span> <span class="dv">7000</span>) <span class="sc">%&gt;%</span> tidyr<span class="sc">::</span><span class="fu">drop_na</span>()</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <caption>Data summary</caption>
 <tbody>
 <tr class="odd">
@@ -781,7 +789,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: character</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 19%">
 <col style="width: 13%">
@@ -818,7 +826,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: numeric</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 17%">
 <col style="width: 12%">
@@ -883,7 +891,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>d3<span class="sc">$</span>Gender <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(d3<span class="sc">$</span>Gender)  </span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <caption>Data summary</caption>
 <tbody>
 <tr class="odd">
@@ -925,7 +933,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: factor</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 17%">
 <col style="width: 12%">
@@ -956,7 +964,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: numeric</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 17%">
 <col style="width: 12%">
@@ -1021,7 +1029,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>d4 <span class="ot">&lt;-</span> d3 <span class="sc">%&gt;%</span> dplyr<span class="sc">::</span><span class="fu">filter</span>( <span class="sc">!</span>(Gender <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"NA"</span>,<span class="st">"N"</span>)) ) <span class="sc">%&gt;%</span> <span class="fu">droplevels</span>()</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>skimr<span class="sc">::</span><span class="fu">skim</span>(d4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <caption>Data summary</caption>
 <tbody>
 <tr class="odd">
@@ -1063,7 +1071,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: factor</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 19%">
 <col style="width: 13%">
@@ -1094,7 +1102,7 @@ $ Gender &lt;chr&gt; "M", "O", "F", "F", "NA", "F", "O", "M", "N", "M", "F", "F"
 </tbody>
 </table>
 <p><strong>Variable type: numeric</strong></p>
-<table class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <colgroup>
 <col style="width: 17%">
 <col style="width: 12%">
